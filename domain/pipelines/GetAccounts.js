@@ -1,5 +1,5 @@
 import { extractStoredSession } from "../session/session"
-import { getPreviousUsername } from "../../data/username"
+import { getPreviousUsername } from "../data/username"
 
 export const getAccounts = async () => {
 
