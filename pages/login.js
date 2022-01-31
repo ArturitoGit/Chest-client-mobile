@@ -1,10 +1,10 @@
 // React native imports
 import React, { useState, useRef } from "react";
-import { Text, View, TextInput, StyleSheet, Button } from 'react-native' ;
+import { Text, View, TextInput, StyleSheet, Button, ActivityIndicator } from 'react-native' ;
+import { getPreviousUsername } from '../domain/data/username';
 
 // Internal functions
-import { login } from "../communication/core/core-requests" ;
-import { getPreviousUsername } from "../data/username";
+import { login } from "../domain/pipelines/Login" ;
 
 // Page content
 export const LoginScreen = ({ navigation }) => {
@@ -23,12 +23,12 @@ export const LoginScreen = ({ navigation }) => {
     const [info, setInfo] = useState("") ;
 
     const submit = () => onLoginPressed({
+        navigation: navigation,
         username: username,
         password: password,
         setState: setState, 
         setError: setInfo
     })
-
 
     return (
         <View style={login_style.container}>
@@ -55,16 +55,21 @@ export const LoginScreen = ({ navigation }) => {
             />
 
             {/* Info field */}
-            <Text 
-                style={
-                    // Style of the info field depending of the state of the screen
-                    state == STATE.FETCHING ? login_style.info :
-                    state == STATE.FAILED ? [login_style.info, login_style.error] :
-                    []
-                }
-            >
-                {info}
-            </Text>
+            {
+                state == STATE.FETCHING ?
+                    <ActivityIndicator/>
+                :
+                (<Text 
+                    style={
+                        // Style of the info field depending of the state of the screen
+                        state == STATE.FETCHING ? login_style.info :
+                        state == STATE.FAILED ? [login_style.info, login_style.error] :
+                        []
+                    }
+                >
+                    {info}
+                </Text>)
+            }
 
             {/* Login button */}
             <Button
@@ -75,7 +80,7 @@ export const LoginScreen = ({ navigation }) => {
     ) ;
 };
 
-const onLoginPressed = async ({username, password, setState, setError}) => 
+const onLoginPressed = async ({navigation, username, password, setState, setError}) => 
 {
     // Update the error msg
     setState(STATE.FETCHING) ;
@@ -97,9 +102,13 @@ const onLoginPressed = async ({username, password, setState, setError}) =>
         // If valid failure response
         setState(STATE.FAILED)
         setError(result.error) 
+        return
     }
 
     // TODO : If success
+    setState(STATE.READY)
+    setError("")
+    navigation.navigate('Accounts', {})
 }
 
 // Page style

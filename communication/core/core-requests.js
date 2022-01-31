@@ -1,14 +1,8 @@
 
-export const login = async (username, password) => {
+import { Alert } from 'react-native' ;
 
-    // Wait 4s
-    await delay(2000) ;
+export const onCoreError = (navigation) => {
 
-    // Return result
-    return {
-        success: false,
-        error: `Fail for ${username}, ${password}`
-    }
 }
 
 function delay(milliseconds){
