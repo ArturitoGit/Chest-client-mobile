@@ -9,6 +9,7 @@ import { LoginScreen } from './pages/login' ;
 import { AccountsScreen } from './pages/accounts';
 import { AccountScreen } from './pages/account';
 import { accountEditScreen } from './pages/account_edit';
+import { PasswordScreen } from './pages/password';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,6 +35,7 @@ const App = () => {
         />
         <Stack.Screen name="Account" options={{ title: "..."}} component={AccountScreen} />
         <Stack.Screen name="Account_Edit" options={{ title: ""}} component={accountEditScreen} />
+        <Stack.Screen name="Password" component={PasswordScreen} />
         <Stack.Screen
           name="Home"
           component={HomeScreen}

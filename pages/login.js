@@ -3,6 +3,8 @@ import React, { useState, useRef } from "react";
 import { Text, View, TextInput, StyleSheet, Button, ActivityIndicator } from 'react-native' ;
 import { getPreviousUsername } from '../domain/data/username';
 
+import { Style } from "../assets/style/Style";
+
 // Internal functions
 import { login } from "../domain/pipelines/Login" ;
 
@@ -34,7 +36,7 @@ export const LoginScreen = ({ navigation }) => {
         <View style={login_style.container}>
             
             {/* Username field */}
-            <Text style={login_style.label}>Username : </Text>
+            <Text style={[Style.label, login_style.label]}>Username : </Text>
             <TextInput 
                 autoCapitalize = {"none"}
                 style={login_style.input}
@@ -44,7 +46,7 @@ export const LoginScreen = ({ navigation }) => {
             />
 
             {/* Password field */}
-            <Text style={login_style.label}>Password : </Text>
+            <Text style={[Style.label, login_style.label]}>Password : </Text>
             <TextInput 
                 ref={passwordInputField}
                 style={login_style.input} 
@@ -117,9 +119,7 @@ const login_style = StyleSheet.create({
         marginTop: 50
     },  
     label: {
-        fontWeight: "bold",
-        textAlign: "center",
-        fontSize: 15
+        textAlign: "center"
     },
     input: {
         margin: 5,

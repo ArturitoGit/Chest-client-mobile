@@ -118,8 +118,8 @@ export const AccountScreen = ({ navigation, route }) => {
                     content={clearAccount.clearPassword}
                     contentSetter={null}
                     onEdit={() => {
-                        console.log("Password edit !")
                         // TODO : go to password page
+                        navigation.navigate("Password", {password: clearAccount.clearPassword})
                     }}
                 />
             </View>
