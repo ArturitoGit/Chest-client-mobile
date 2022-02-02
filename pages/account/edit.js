@@ -16,7 +16,7 @@ export const EditScreen = ({navigation, route}) => {
     const [link, setLink] = useState(initial_account.link)
     const [username, setUsername] = useState(initial_account.username)
 
-    const submit = async () => {
+    const submit = () => {
         const newAccount = {
             id: initial_account.id,
             name: name,
@@ -24,8 +24,9 @@ export const EditScreen = ({navigation, route}) => {
             username: username,
             clearPassword: initial_account.clearPassword
         }
-        await editAccount(newAccount)
-        navigation.navigate("Account", {accountId: initial_account.id})
+        editAccount(newAccount).then(result => {
+            navigation.navigate("Account", {accountId: initial_account.id})
+        })
     }
 
     return (
