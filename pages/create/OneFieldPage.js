@@ -1,5 +1,6 @@
-import { Button, StyleSheet, Text, TextInput, View } from "react-native"
-import { Style } from "../../assets/style/Style"
+import { useState } from "react"
+import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from "react-native"
+import { CenteredActivityIndicator, Style } from "../../assets/style/Style"
 
 /**
  * This page shows a simple input text page, which contains :
@@ -10,7 +11,30 @@ import { Style } from "../../assets/style/Style"
  * - A callback for the validation
  * - An optional callback for a cancellation of the page
  */
-export const FieldPage = ({ label, value, setValue, placeholder="", onValidate, onIgnore }) => {
+export const FieldPage = ({ 
+        label, 
+        value, 
+        setValue, 
+        placeholder="", 
+        onValidate, 
+        onIgnore, 
+        multiline = false,
+        validator = content => ({success: true, error: ""})
+        }) => {
+
+    const tryValidate = () => {
+        var isValueValid = validator(value)
+        if (isValueValid.success) {
+            setLoading(true)
+            onValidate()
+            return
+        }
+        setError(isValueValid.error)
+    }
+
+    const [error, setError] = useState("")
+    const [isLoading, setLoading] = useState(false)
+
     return (
         <View style={create_style.field}>
             <Text style={create_style.question}>{label}</Text>
@@ -21,8 +45,10 @@ export const FieldPage = ({ label, value, setValue, placeholder="", onValidate, 
                 onChangeText={setValue}
                 autoFocus={true}
                 returnKeyType='next'
-                onSubmitEditing={onValidate}
+                onSubmitEditing={tryValidate}
+                multiline={multiline}
             />
+            <Text style={create_style.error}>{error}</Text>
             <View style={{
                 flexDirection: "row", 
                 justifyContent: onIgnore == null ? "center" : "space-around"}}>
@@ -36,10 +62,10 @@ export const FieldPage = ({ label, value, setValue, placeholder="", onValidate, 
                 }
                 <Button 
                     title="Valider"
-                    onPress={onValidate}
+                    onPress={tryValidate}
                 />
             </View>
-
+            {isLoading ? <ActivityIndicator/> : []}
         </View>
     )
 }
@@ -54,5 +80,9 @@ const create_style = StyleSheet.create({
     },
     input: {
         marginVertical: 30
+    },
+    error: {
+        textAlign: "center",
+        color: "red"
     }
 })

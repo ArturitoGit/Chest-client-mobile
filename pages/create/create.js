@@ -4,6 +4,7 @@ import { DismissKeyBoard, Style } from "../../assets/style/Style";
 import { FieldPage } from "./OneFieldPage";
 
 import { Parent } from "../password";
+import { AccountNameValidator } from "../account/account";
 
 
 export const CreateScreen = ({ navigation, route }) => {
@@ -33,6 +34,7 @@ export const CreateScreen = ({ navigation, route }) => {
                         placeholder="Mon super compte"
                         // On Name validate show a new page with username input info
                         onValidate = {() => navigation.push("Create", {part: Create_Parts.LINK, account: getCurrentAccount() })}
+                        validator={AccountNameValidator}
                     />
                 )
             case Create_Parts.LINK:
@@ -44,6 +46,7 @@ export const CreateScreen = ({ navigation, route }) => {
                         placeholder="https://my-great-account.com"
                         onValidate = {() => navigation.push("Create", {part: Create_Parts.USERNAME, account: getCurrentAccount() })}
                         onIgnore = {() => navigation.push("Create", {part: Create_Parts.USERNAME, account: account })}
+                        multiline={true}
                     />
                 )
             case Create_Parts.USERNAME :

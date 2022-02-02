@@ -10,6 +10,7 @@ import { AccountScreen } from './pages/account/account';
 import { accountEditScreen } from './pages/account_edit';
 import { PasswordScreen } from './pages/password';
 import { CreateScreen } from './pages/create/create';
+import { EditScreen } from './pages/account/edit';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,7 +36,7 @@ const App = () => {
         />
         <Stack.Screen name="Account" options={{ title: "Account"}} component={AccountScreen} />
         <Stack.Screen name="Create" options={{title: ""}} component={CreateScreen} />
-        <Stack.Screen name="Account_Edit" options={{ title: ""}} component={accountEditScreen} />
+        <Stack.Screen name="Account_Edit" options={{ title: ""}} component={EditScreen} />
         <Stack.Screen name="Password" options={{headerBackTitle: "Cancel"}} component={PasswordScreen} />
         <Stack.Screen
           name="Home"

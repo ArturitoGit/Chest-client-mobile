@@ -1,12 +1,13 @@
 // React native imports
 import React, { useState, useRef } from "react";
-import { Text, View, TextInput, StyleSheet, Button, ActivityIndicator } from 'react-native' ;
+import { Text, View, TextInput, StyleSheet, Button, ActivityIndicator, Alert, ActionSheetIOS } from 'react-native' ;
 import { getPreviousUsername } from '../domain/data/username';
 
 import { Style } from "../assets/style/Style";
 
 // Internal functions
 import { login } from "../domain/pipelines/Login" ;
+import { getServerAddress, setServerAddress } from "../domain/data/serverAddress";
 
 // Page content
 export const LoginScreen = ({ navigation }) => {
@@ -15,7 +16,7 @@ export const LoginScreen = ({ navigation }) => {
     React.useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <Button onPress={() => {}} title="Options"/>
+                <Button onPress={() => displayOptions(navigation)} title="Options"/>
             ),
             headerTitle: ""
         })
@@ -122,6 +123,34 @@ const onLoginPressed = async ({navigation, username, password, setState, setErro
     setState(STATE.READY)
     setError("")
     navigation.navigate('Accounts', {})
+}
+
+function displayOptions (navigation) {
+    ActionSheetIOS.showActionSheetWithOptions(
+        {
+            options: ["Cancel",`Change server address`],
+            cancelButtonIndex: 0,
+            userInterfaceStyle: 'dark'
+        },
+        buttonIndex => {
+            if(buttonIndex === 1) {
+                changeServerAddress()
+            }
+        }
+    )
+}
+
+function changeServerAddress () {
+    var current = getServerAddress()
+    // Get the current server address
+    Alert.prompt(
+        'Change server host',   // Title
+        null,                   // Message
+        setServerAddress,       // Action
+        'plain-text',           // Alert type
+        current,                // Default value
+        'default'               // Keyboard type
+    )
 }
 
 // Page style

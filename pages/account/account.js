@@ -5,6 +5,8 @@ import { Header } from "react-native/Libraries/NewAppScreen"
 
 import { CenteredActivityIndicator, DEFAULT_FONT_SIZE, Style, TITLE_FONT_SIZE } from '../../assets/style/Style'
 import { getClearAccountFromId } from "../../domain/pipelines/GetClearAccountFromId"
+import { Parent } from "../password"
+import { EDIT_FIELD } from "./edit"
 
 export const AccountScreen = ({navigation, route}) => {
 
@@ -22,10 +24,35 @@ export const AccountScreen = ({navigation, route}) => {
         })
     }, [])
 
-    const Field = ({label, value, setValue}) => (
+    function displayOptions (label, value, field) {
+        ActionSheetIOS.showActionSheetWithOptions(
+            {
+                options: ["Cancel",`Edit ${label.toLowerCase()}`, `Copy ${label.toLowerCase()}`],
+                cancelButtonIndex: 0,
+                userInterfaceStyle: 'dark'
+            },
+            buttonIndex => {
+                if(buttonIndex === 1) {
+                    updateValue(field)
+                }
+            }
+        )
+    }
+    
+    function updateValue (field) {
+        // If update password
+        if (field == EDIT_FIELD.PASSWORD) {
+            navigation.push("Password", {account: account, parent: Parent.EDIT})
+            return
+        }
+        // Else call the edit page
+        navigation.push("Account_Edit", {account: account, field: field})
+    }
+
+    const Field = ({label, value, field}) => (
 
         <TouchableOpacity
-            onPress={() => displayOptions(navigation, label,value)}
+            onPress={() => displayOptions(label, value, field)}
         >
             <View style={style.field}>
                 <Text style={[Style.label, style.label]}>{label}</Text>
@@ -43,18 +70,22 @@ export const AccountScreen = ({navigation, route}) => {
                         <Field
                             label="Name"
                             value={account.name}
+                            field={EDIT_FIELD.NAME}
                         />
                         <Field
                             label="Link"
                             value={account.link}
+                            field={EDIT_FIELD.LINK}
                         />
                         <Field
                             label="Username"
                             value={account.username}
+                            field={EDIT_FIELD.USERNAME}
                         />
                         <Field
                             label="Password"
                             value={account.clearPassword}
+                            field={EDIT_FIELD.PASSWORD}
                         />
                         <View style={style.deleteButton}>
                             <Button
@@ -70,38 +101,21 @@ export const AccountScreen = ({navigation, route}) => {
 
 }
 
+export const AccountNameValidator = (name) => {
+    if (name == null || name.length <= 0) return {
+        success: false, error: "Account name must not be empty"
+    }
+    return {
+        success: true
+    }
+}
+
 // Shorten a text if it is too long, by returning the beginning only, with ... at the end
 function limitText (text) {
     const MAX_LENGTH = 50
     return text.length > MAX_LENGTH ?
         text.substring(0, MAX_LENGTH - 4) + " ..." :
         text
-}
-
-function displayOptions (navigation, label, value, setValue) {
-    ActionSheetIOS.showActionSheetWithOptions(
-        {
-            options: ["Cancel",`Edit ${label.toLowerCase()}`, `Copy ${label.toLowerCase()}`],
-            cancelButtonIndex: 0,
-            userInterfaceStyle: 'dark'
-        },
-        buttonIndex => {
-            if(buttonIndex === 1) {
-                navigation.navigate("Accounts", {})
-            }
-        }
-    )
-}
-
-function updateValue (navigation, label, value, setValue) {
-    Alert.prompt(
-        `Edit ${label} :`,              // Title
-        null,                           // Message
-        () => {}, // Action
-        'plain-text',                   // Alert type
-        value,                          // Default value
-        'default'                       // Keyboard type
-    )
 }
 
 const style = StyleSheet.create({

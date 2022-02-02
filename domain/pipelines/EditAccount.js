@@ -15,10 +15,18 @@ export const editAccount = async (clearAccount) => {
     var session_result = extractStoredSession() ;
     if (!session_result.success) return { success: false, clearAccount: null }
 
+    await delay(1000)
+
     // Return success
     return Promise.resolve({
         success: true,
         clearAccount: clearAccount
     })
 
+}
+
+function delay(milliseconds){
+    return new Promise(resolve => {
+        setTimeout(resolve, milliseconds);
+    })
 }
