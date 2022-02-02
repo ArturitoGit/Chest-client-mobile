@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react' ;
 import { Text, TextInput, Button, View, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native' ;
 
 import { getAccounts } from "../domain/pipelines/GetAccounts" ;
+import { Create_Parts } from './create/create';
 
 // Page main function
 export const AccountsScreen = ({ navigation }) => {
@@ -21,6 +22,17 @@ export const AccountsScreen = ({ navigation }) => {
                 setDisplayedAccounts(result.accounts) ;
             })
     }
+
+    const createAccount = () => navigation.navigate("Create", { part: Create_Parts.NAME})
+
+    // Add right button to the header
+    React.useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <Button onPress={createAccount} title="New"/>
+            )
+        })
+    }, [navigation])
 
     // On one account clicked
     const onAccountClicked = account => {

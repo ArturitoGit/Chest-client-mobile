@@ -5,6 +5,7 @@ import { getClearAccountFromId, onCoreError } from '../domain/pipelines/GetClear
 import { editAccount } from '../domain/pipelines/EditAccount';
 import { State } from './accounts';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Parent } from './password';
 
 
 export const AccountScreen = ({ navigation, route }) => {
@@ -67,7 +68,7 @@ export const AccountScreen = ({ navigation, route }) => {
             <View style={account_style.account_field}>
                 <View style={account_style.label_content_container}>
                     <Text style={account_style.label}>{label} : </Text>
-                    <Text style={account_style.content}>{limitText(content)}</Text>
+                    <Text style={account_style.content} selectable={true}>{limitText(content)}</Text>
                 </View>
                 <Button
                     title="Edit"
@@ -119,7 +120,7 @@ export const AccountScreen = ({ navigation, route }) => {
                     contentSetter={null}
                     onEdit={() => {
                         // TODO : go to password page
-                        navigation.navigate("Password", {password: clearAccount.clearPassword})
+                        navigation.navigate("Password", {account: clearAccount, parent: Parent.EDIT})
                     }}
                 />
             </View>

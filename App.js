@@ -4,12 +4,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Pages
 import { HomeScreen } from './pages/home' ;
-import { ProfileScreen } from './pages/profile' ;
 import { LoginScreen } from './pages/login' ;
 import { AccountsScreen } from './pages/accounts';
-import { AccountScreen } from './pages/account';
+import { AccountScreen } from './pages/account/account';
 import { accountEditScreen } from './pages/account_edit';
 import { PasswordScreen } from './pages/password';
+import { CreateScreen } from './pages/create/create';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,9 +33,10 @@ const App = () => {
             gestureEnabled: false
           }}
         />
-        <Stack.Screen name="Account" options={{ title: "..."}} component={AccountScreen} />
+        <Stack.Screen name="Account" options={{ title: "Account"}} component={AccountScreen} />
+        <Stack.Screen name="Create" options={{title: ""}} component={CreateScreen} />
         <Stack.Screen name="Account_Edit" options={{ title: ""}} component={accountEditScreen} />
-        <Stack.Screen name="Password" component={PasswordScreen} />
+        <Stack.Screen name="Password" options={{headerBackTitle: "Cancel"}} component={PasswordScreen} />
         <Stack.Screen
           name="Home"
           component={HomeScreen}

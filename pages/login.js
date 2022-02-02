@@ -11,6 +11,17 @@ import { login } from "../domain/pipelines/Login" ;
 // Page content
 export const LoginScreen = ({ navigation }) => {
 
+    // Add right button to the header
+    React.useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <Button onPress={() => {}} title="Options"/>
+            ),
+            headerTitle: ""
+        })
+    }, [navigation])
+
+
     // Get the previous username
     const previousUsernameResponse = getPreviousUsername()
     const previousUsername = previousUsernameResponse.isPresent ? previousUsernameResponse.username : ""
