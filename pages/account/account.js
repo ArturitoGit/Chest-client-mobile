@@ -1,12 +1,12 @@
 import { NavigationHelpersContext } from "@react-navigation/native"
-import { useEffect, useState } from "react"
-import { ActionSheetIOS, ActivityIndicator, Alert, Button, Pressable, SafeAreaView, StyleSheet, Text, TouchableOpacity, Vibration, View } from "react-native"
+import { useEffect, useLayoutEffect, useState } from "react"
+import { ActionSheetIOS, ActivityIndicator, Alert, Button, Clipboard, Pressable, SafeAreaView, StyleSheet, Text, TouchableOpacity, Vibration, View } from "react-native"
 import { Header } from "react-native/Libraries/NewAppScreen"
 
-import { CenteredActivityIndicator, DEFAULT_FONT_SIZE, Style, TITLE_FONT_SIZE } from '../../assets/style/Style'
-import { getClearAccountFromId } from "../../domain/pipelines/GetClearAccountFromId"
+import { APP_MAIN_COLOR, CenteredActivityIndicator, DEFAULT_FONT_SIZE, Style, TITLE_FONT_SIZE } from '../../assets/style/Style'
+import { deleteAccount } from "../../domain/pipelines/DeleteAccount"
+import { getClearAccount } from "../../domain/pipelines/GetClearAccountFromId"
 import { Parent } from "../password"
-import { EDIT_FIELD } from "./edit"
 
 export const AccountScreen = ({navigation, route}) => {
 
@@ -15,25 +15,37 @@ export const AccountScreen = ({navigation, route}) => {
     const [isLoading, setLoading] = useState(true)
     const [account, setAccount] = useState({})
 
-    useEffect(() => {
-        // Get the clear account from the server
-        getClearAccountFromId(accountId).then(result => {
-            // Update the variable and display it
+    const update = () => {
+        setLoading(true)
+        getClearAccount(navigation, accountId).then(result => {
             setAccount(result.clearAccount)
             setLoading(false)
         })
-    }, [])
+    }
+
+    useEffect(() => {
+        const unsuscribe = navigation.addListener('focus', () => {
+            // This will be executed when the page goes from background to foreground
+            update()
+        }) ;
+        update()
+        return unsuscribe
+    }, [navigation])
 
     function displayOptions (label, value, field) {
         ActionSheetIOS.showActionSheetWithOptions(
             {
                 options: ["Cancel",`Edit ${label.toLowerCase()}`, `Copy ${label.toLowerCase()}`],
                 cancelButtonIndex: 0,
-                userInterfaceStyle: 'dark'
+                userInterfaceStyle: 'dark',
+                tintColor: APP_MAIN_COLOR
             },
             buttonIndex => {
                 if(buttonIndex === 1) {
                     updateValue(field)
+                }
+                else if (buttonIndex === 2) {
+                    Clipboard.setString(value)
                 }
             }
         )
@@ -47,6 +59,23 @@ export const AccountScreen = ({navigation, route}) => {
         }
         // Else call the edit page
         navigation.push("Account_Edit", {account: account, field: field})
+    }
+
+    const onDeletePressed = () => {
+        Alert.prompt(
+            "Etes vous sûr de vouloir supprimer ce compte ?",
+            "Cette opération ne pourra pas être annulée",
+            () => {
+                setLoading(true)
+                deleteAccount(navigation, account.id).then(result => {
+                    setLoading(false)
+                    navigation.navigate("Accounts", {})
+                })
+            },
+            'default',
+            null,
+            'default'
+        )
     }
 
     const Field = ({label, value, field}) => (
@@ -91,6 +120,7 @@ export const AccountScreen = ({navigation, route}) => {
                             <Button
                                 title="Delete"
                                 color="red"
+                                onPress={onDeletePressed}
                             />
                         </View>
                     </View>
@@ -113,6 +143,7 @@ export const AccountNameValidator = (name) => {
 // Shorten a text if it is too long, by returning the beginning only, with ... at the end
 function limitText (text) {
     const MAX_LENGTH = 50
+    if (text == null) return null
     return text.length > MAX_LENGTH ?
         text.substring(0, MAX_LENGTH - 4) + " ..." :
         text
@@ -120,6 +151,7 @@ function limitText (text) {
 
 const style = StyleSheet.create({
     content: {
+        marginTop: 20
     }, 
     field: {
         marginVertical: 10,
@@ -129,6 +161,7 @@ const style = StyleSheet.create({
     },
     label: {
         marginBottom: 5,
+        color: APP_MAIN_COLOR
     },
     value: {
         marginLeft: 20,
@@ -139,3 +172,10 @@ const style = StyleSheet.create({
         marginTop: 20
     },
 })
+
+export const EDIT_FIELD = {
+    NAME: 0,
+    LINK: 1,
+    USERNAME: 2,
+    PASSWORD: 3
+}

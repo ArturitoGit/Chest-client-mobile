@@ -5,21 +5,25 @@ import { ActivityIndicator, Keyboard, StyleSheet, TouchableWithoutFeedback, View
 export const DEFAULT_FONT_SIZE = 15
 export const LABEL_FONT_SIZE = 20
 export const TITLE_FONT_SIZE = 35
+export const HEADER_FONT_SIZE = LABEL_FONT_SIZE
+export const APP_MAIN_COLOR = "steelblue"
 
 export const Style = StyleSheet.create({
     container: {
-        margin: 30,
+        marginHorizontal: 30,
         height: '100%',
     },
     label: {
         fontWeight: "bold",
-        fontSize: LABEL_FONT_SIZE
+        fontSize: LABEL_FONT_SIZE,
+        color: APP_MAIN_COLOR
     },
     input: {
         backgroundColor: "white",
         padding: 8,
         borderRadius: 8,
-        fontSize: DEFAULT_FONT_SIZE
+        fontSize: DEFAULT_FONT_SIZE,
+        color: "gray"
     }
 })
 

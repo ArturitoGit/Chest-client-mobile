@@ -1,6 +1,6 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from "react-native"
-import { CenteredActivityIndicator, Style } from "../../assets/style/Style"
+import { APP_MAIN_COLOR, CenteredActivityIndicator, Style } from "../../assets/style/Style"
 
 /**
  * This page shows a simple input text page, which contains :
@@ -16,24 +16,23 @@ export const FieldPage = ({
         value, 
         setValue, 
         placeholder="", 
-        onValidate, 
+        onValidate,
+        isLoading, 
         onIgnore, 
         multiline = false,
         validator = content => ({success: true, error: ""})
         }) => {
 
-    const tryValidate = () => {
-        var isValueValid = validator(value)
+    const tryValidate = async () => {
+        const isValueValid = validator(value)
         if (isValueValid.success) {
-            setLoading(true)
-            onValidate()
+            await onValidate()
             return
         }
         setError(isValueValid.error)
     }
 
     const [error, setError] = useState("")
-    const [isLoading, setLoading] = useState(false)
 
     return (
         <View style={create_style.field}>
@@ -47,6 +46,11 @@ export const FieldPage = ({
                 returnKeyType='next'
                 onSubmitEditing={tryValidate}
                 multiline={multiline}
+                selectionColor={APP_MAIN_COLOR}
+                // Do not help the user write his informations
+                autoComplete='off'
+                autoCapitalize='none'
+                autoCorrect={false}
             />
             <Text style={create_style.error}>{error}</Text>
             <View style={{
@@ -57,12 +61,14 @@ export const FieldPage = ({
                         <Button
                             title="Ignorer"
                             onPress={onIgnore}
+                            color={APP_MAIN_COLOR}
                         />
                     ) : []
                 }
                 <Button 
                     title="Valider"
                     onPress={tryValidate}
+                    color={APP_MAIN_COLOR}
                 />
             </View>
             {isLoading ? <ActivityIndicator/> : []}
@@ -76,10 +82,12 @@ const create_style = StyleSheet.create({
     },
     question: {
         fontSize: 25,
-        fontWeight: "bold"
+        fontWeight: "bold",
+        marginVertical: 20,
+        color: APP_MAIN_COLOR
     },
     input: {
-        marginVertical: 30
+        marginVertical: 10
     },
     error: {
         textAlign: "center",

@@ -1,4 +1,6 @@
+import { sendPostRequest } from "../core_communication/fetchAgent";
 import { extractStoredSession } from "../session/session"
+import { disconnectUser } from "./DisconnectUser";
 
 /**
  * 
@@ -8,31 +10,43 @@ import { extractStoredSession } from "../session/session"
  *              {ClearAccount?} clearAccount    : the clear account if success is true, null if success is false
  *          }
  */
-export const getClearAccountFromId = async accountId => {
+export const getClearAccount = async (navigation, accountId) => {
+
 
     // Extract the username and password from the session
     var getSessionResult = extractStoredSession() ; 
     if (!getSessionResult.success) return Promise.resolve({success: false, clearAccount: null})
 
-    await delay(1000)
+    const username = getSessionResult.username
+    const password = getSessionResult.password
 
-    if (accountId != 1) return Promise.resolve({
-        success: false, clearAccount: null
-    })
+    try {
 
-    return Promise.resolve({
-        success: true,
-        clearAccount: {
-            id: 1, 
-            name: "La banque postale",
-            link: "http://la-banque-postale.comoushdfoldshdpihzsdlmikhfdslmhdspm",
-            username: "arturito",
-            clearPassword: "el_burrito15"
+        // Send a post request to the server with username and password as arguments
+        const response = await sendPostRequest("decrypt", 
+            {
+                userUsername: username, 
+                userClearPassword: password,
+                accountId: accountId
+            }
+        )
+
+        if (!response.success) return {
+            success: false, clearAccount: null
         }
-    })
-}
-function delay(milliseconds){
-    return new Promise(resolve => {
-        setTimeout(resolve, milliseconds);
-    })
+
+        var clearAccount = {...response.account}
+        clearAccount.clearPassword = response.clearPassword
+
+        return {
+            success: true,
+            clearAccount: clearAccount
+        }
+    }
+
+    // In case of failure reaching the server
+    catch (exception) {
+        disconnectUser(navigation)
+    }
+
 }

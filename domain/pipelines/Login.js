@@ -1,3 +1,4 @@
+import { sendPostRequest } from "../core_communication/fetchAgent";
 import { storeSession } from "../session/session";
 
 /**
@@ -10,27 +11,29 @@ import { storeSession } from "../session/session";
  *          }
  */
 export const login = async (username, password) => {
+    
+    try {
 
-    // Wait 4s
-    await delay(2000) ;
+        // Send a post request to the server with username and password as arguments
+        const response = await sendPostRequest("login", 
+            {
+                username: username, 
+                clearPassword: password
+            }
+        )
 
-    var result = {
-        success: true,
-        error: `Fail for ${username}, ${password}`
+        // If the request succeeded, store the parameters in the session
+        if (response.success) storeSession({username: username, password: password})
+
+        // Return the result
+        return response
     }
 
-    // If connexion was successful then register the user infos in the session
-    if (result.success) storeSession({ username: username, password: password })
-
-    // Return result
-    return {
-        success: true,
-        error: `Fail for ${username}, ${password}`
+    // In case of failure reaching the server
+    catch (exception) {
+        return {
+            success: false,
+            error: "Failed to reach the server"
+        }
     }
-}
-
-function delay(milliseconds){
-    return new Promise(resolve => {
-        setTimeout(resolve, milliseconds);
-    })
 }

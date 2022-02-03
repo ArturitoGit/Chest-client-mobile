@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { disconnectUser } from "../domain/pipelines/DisconnectUser"
 import { generatePassword } from "../domain/pipelines/GeneratePassword"
 
-import { Style, DismissKeyBoard } from "../assets/style/Style"
+import { Style, DismissKeyBoard, APP_MAIN_COLOR } from "../assets/style/Style"
 import { editAccount } from "../domain/pipelines/EditAccount"
 import { createAccount } from "../domain/pipelines/CreateAccount"
 
@@ -35,6 +35,7 @@ export const PasswordScreen = ({navigation, route}) => {
     const generate = () => {
         setLoading(true)
         generatePassword(
+            navigation, 
             length, 
             upperEnabled, 
             lowerEnabled, 
@@ -53,19 +54,6 @@ export const PasswordScreen = ({navigation, route}) => {
                 })
     }
 
-    const validate = () => {
-        // Create new account object
-        var newAccount = {...initial_account}
-        newAccount.clearPassword = password
-        editAccount(newAccount).then(result => {
-            if (!result.success) {
-                // TODO
-                return
-            }
-            navigation.navigate("Account", {accountId: initial_account.id })
-        })
-    }
-
     return (
         <DismissKeyBoard>
         <SafeAreaView style={password_style.container}>
@@ -73,7 +61,7 @@ export const PasswordScreen = ({navigation, route}) => {
             {/* Password preview */}
             <View style={{height: 50}}>
                 {isLoading ? <ActivityIndicator/> :
-                    <Text style={password_style.preview}>{password}</Text>
+                    <Text style={[{fontSize: previewFontSize(password.length)}, password_style.preview]}>{password}</Text>
                 }
             </View>
 
@@ -84,6 +72,7 @@ export const PasswordScreen = ({navigation, route}) => {
                 value={forcedContent}
                 onChangeText={setForcedContent}
                 keyboardType="ascii-capable"
+                selectionColor={APP_MAIN_COLOR}
             />
                 
             <View style={[password_style.page_component]}>
@@ -123,6 +112,8 @@ export const PasswordScreen = ({navigation, route}) => {
                     step={1}
                     onValueChange={setLength}
                     value={length}
+                    maximumTrackTintColor={"white"}
+                    minimumTrackTintColor={APP_MAIN_COLOR}
                 />
             </View>
 
@@ -131,6 +122,7 @@ export const PasswordScreen = ({navigation, route}) => {
                 <Button
                     title="Generate"
                     onPress={generate}
+                    color={APP_MAIN_COLOR}
                 />
 
                 {/* Validate button */}
@@ -138,9 +130,10 @@ export const PasswordScreen = ({navigation, route}) => {
                     title="Validate"
                     disabled={!isOnePasswordPresent}
                     onPress={parent == Parent.CREATE ? 
-                        () => onCreatePasswordGenerated(navigation, initial_account, password) : 
-                        () => onEditPasswordGenerated(navigation, initial_account, password)
+                        () => onCreatePasswordGenerated(navigation, initial_account, password, setLoading) : 
+                        () => onEditPasswordGenerated(navigation, initial_account, password, setLoading)
                     }
+                    color={APP_MAIN_COLOR}
                 />
             </View>
 
@@ -168,9 +161,10 @@ function getNewAccount (initialAccount, newPassword) {
     return newAccount
 }
 
-function onEditPasswordGenerated (navigation, initialAccount, newPassword) {
+function onEditPasswordGenerated (navigation, initialAccount, newPassword, setLoading) {
+    setLoading(true)
     var account = getNewAccount(initialAccount, newPassword)
-    editAccount(account).then(result => {
+    editAccount(navigation, account).then(result => {
         if(!result.success) {
             disconnectUser(navigation) ;
             return
@@ -181,18 +175,29 @@ function onEditPasswordGenerated (navigation, initialAccount, newPassword) {
     })
 }
 
-function onCreatePasswordGenerated (navigation, initialAccount, newPassword) {
+function onCreatePasswordGenerated (navigation, initialAccount, newPassword, setLoading) {
+    setLoading(true)
     var account = getNewAccount(initialAccount, newPassword)
     // Send request to create the password
-    createAccount().then(result => {
+    createAccount(navigation, account).then(result => {
         if (!result.success) {
             disconnectUser(navigation) ;
             return
         }
-        console.log("account created : " + JSON.stringify(account))
         // Redirect to accounts
         navigation.navigate("Accounts", {})
     })
+}
+
+// Small password will be rendered bigger than long passwords
+const previewFontSize = length => {
+    return (
+        length <= 5 ?
+            40 :
+        length <= 10 ?
+            35 :
+            30
+    )
 }
 
 // Page style
@@ -206,7 +211,7 @@ const password_style = StyleSheet.create({
     preview: {
         textAlign: "center",
         fontWeight: "bold",
-        fontSize: 35
+        color: APP_MAIN_COLOR
     },
     text_input: {
         backgroundColor: "white",

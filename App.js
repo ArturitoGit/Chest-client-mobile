@@ -11,13 +11,24 @@ import { accountEditScreen } from './pages/account_edit';
 import { PasswordScreen } from './pages/password';
 import { CreateScreen } from './pages/create/create';
 import { EditScreen } from './pages/account/edit';
+import { APP_MAIN_COLOR, DEFAULT_FONT_SIZE, HEADER_FONT_SIZE, Style } from './assets/style/Style';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator
+        screenOptions={{
+          headerTintColor: APP_MAIN_COLOR,
+          headerTitleStyle: {
+            fontSize: HEADER_FONT_SIZE
+          },
+          headerBackTitleStyle: {
+            color: APP_MAIN_COLOR,
+          }
+        }}
+      >
         <Stack.Screen 
           name="Login" 
           options={{

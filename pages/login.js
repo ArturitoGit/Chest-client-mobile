@@ -1,9 +1,9 @@
 // React native imports
 import React, { useState, useRef } from "react";
-import { Text, View, TextInput, StyleSheet, Button, ActivityIndicator, Alert, ActionSheetIOS } from 'react-native' ;
-import { getPreviousUsername } from '../domain/data/username';
+import { Text, View, TextInput, StyleSheet, Button, ActivityIndicator, Alert, ActionSheetIOS, SafeAreaView, StatusBar } from 'react-native' ;
+import { getPreviousUsername, setPreviousUsername } from '../domain/data/username';
 
-import { Style } from "../assets/style/Style";
+import { APP_MAIN_COLOR, Style } from "../assets/style/Style";
 
 // Internal functions
 import { login } from "../domain/pipelines/Login" ;
@@ -16,7 +16,7 @@ export const LoginScreen = ({ navigation }) => {
     React.useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <Button onPress={() => displayOptions(navigation)} title="Options"/>
+                <Button onPress={() => displayOptions(navigation)} color={APP_MAIN_COLOR} title="Options"/>
             ),
             headerTitle: ""
         })
@@ -45,13 +45,16 @@ export const LoginScreen = ({ navigation }) => {
     })
 
     return (
-        <View style={login_style.container}>
-            
+        <SafeAreaView style={login_style.container}>
+
+            {/* Make the status bar at the top of the screen visible */}
+            <StatusBar barStyle="dark-content" />
+
             {/* Username field */}
             <Text style={[Style.label, login_style.label]}>Username : </Text>
             <TextInput 
                 autoCapitalize = {"none"}
-                style={login_style.input}
+                style={[Style.input, login_style.input]}
                 onChangeText={onUsernameChange}
                 value={username}
                 onSubmitEditing={() => { passwordInputField.current.focus(); }}
@@ -61,7 +64,7 @@ export const LoginScreen = ({ navigation }) => {
             <Text style={[Style.label, login_style.label]}>Password : </Text>
             <TextInput 
                 ref={passwordInputField}
-                style={login_style.input} 
+                style={[Style.input, login_style.input]} 
                 secureTextEntry={true}
                 onChangeText={onPasswordChange}
                 value={password}
@@ -69,28 +72,31 @@ export const LoginScreen = ({ navigation }) => {
             />
 
             {/* Info field */}
-            {
-                state == STATE.FETCHING ?
-                    <ActivityIndicator/>
-                :
-                (<Text 
-                    style={
-                        // Style of the info field depending of the state of the screen
-                        state == STATE.FETCHING ? login_style.info :
-                        state == STATE.FAILED ? [login_style.info, login_style.error] :
-                        []
-                    }
-                >
-                    {info}
-                </Text>)
-            }
+            <View style={login_style.info_error_loading}>
+                {
+                    state == STATE.FETCHING ?
+                        <ActivityIndicator/>
+                    :
+                    (<Text 
+                        style={
+                            // Style of the info field depending of the state of the screen
+                            state == STATE.FETCHING ? login_style.info :
+                            state == STATE.FAILED ? [login_style.info, login_style.error] :
+                            []
+                        }
+                    >
+                        {info}
+                    </Text>)
+                }
+            </View>
 
             {/* Login button */}
             <Button
                 onPress={submit}
                 title="Login"
+                color={APP_MAIN_COLOR}
             />
-        </View>
+        </SafeAreaView>
     ) ;
 };
 
@@ -122,6 +128,7 @@ const onLoginPressed = async ({navigation, username, password, setState, setErro
     // TODO : If success
     setState(STATE.READY)
     setError("")
+    setPreviousUsername(username)
     navigation.navigate('Accounts', {})
 }
 
@@ -130,7 +137,8 @@ function displayOptions (navigation) {
         {
             options: ["Cancel",`Change server address`],
             cancelButtonIndex: 0,
-            userInterfaceStyle: 'dark'
+            userInterfaceStyle: 'dark',
+            tintColor: APP_MAIN_COLOR
         },
         buttonIndex => {
             if(buttonIndex === 1) {
@@ -164,15 +172,15 @@ const login_style = StyleSheet.create({
     input: {
         margin: 5,
         marginBottom: 20,
-        padding: 10,
         marginHorizontal: 30,
-        borderRadius: 5,
-        backgroundColor: "white"
     }, 
+    info_error_loading: {
+        height: 30
+    },
     info: {
         textAlign: "center",
         color: "grey",
-        margin: 5
+        margin: 5,
     },
     error: {
         color: "red"

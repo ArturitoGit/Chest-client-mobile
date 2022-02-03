@@ -33,7 +33,7 @@ export const CreateScreen = ({ navigation, route }) => {
                         setValue={setName}
                         placeholder="Mon super compte"
                         // On Name validate show a new page with username input info
-                        onValidate = {() => navigation.push("Create", {part: Create_Parts.LINK, account: getCurrentAccount() })}
+                        onValidate = {async () => navigation.push("Create", {part: Create_Parts.LINK, account: getCurrentAccount() })}
                         validator={AccountNameValidator}
                     />
                 )
@@ -44,7 +44,7 @@ export const CreateScreen = ({ navigation, route }) => {
                         value={link}
                         setValue={setLink}
                         placeholder="https://my-great-account.com"
-                        onValidate = {() => navigation.push("Create", {part: Create_Parts.USERNAME, account: getCurrentAccount() })}
+                        onValidate = {async () => navigation.push("Create", {part: Create_Parts.USERNAME, account: getCurrentAccount() })}
                         onIgnore = {() => navigation.push("Create", {part: Create_Parts.USERNAME, account: account })}
                         multiline={true}
                     />
@@ -57,7 +57,7 @@ export const CreateScreen = ({ navigation, route }) => {
                         setValue={setUsername}
                         placeholder="L'identifiant de mon super compte"
                         // On username validated show the generate password page
-                        onValidate = {() => navigation.push("Password", {account: getCurrentAccount(), parent: Parent.CREATE })}
+                        onValidate = {async () => navigation.push("Password", {account: getCurrentAccount(), parent: Parent.CREATE })}
                     />
                 )
         }

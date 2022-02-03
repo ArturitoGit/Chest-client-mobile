@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react' ;
-import { Text, TextInput, Button, View, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native' ;
+import React, { useCallback, useEffect, useState } from 'react' ;
+import { Text, TextInput, Button, View, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, SafeAreaView, RefreshControl } from 'react-native' ;
+import { APP_MAIN_COLOR, CenteredActivityIndicator, Style } from '../assets/style/Style';
 
 import { getAccounts } from "../domain/pipelines/GetAccounts" ;
 import { Create_Parts } from './create/create';
@@ -11,6 +12,16 @@ export const AccountsScreen = ({ navigation }) => {
     const [accounts, setAccounts] = useState([]) ;
     const [displayedAccounts, setDisplayedAccounts] = useState([]) ;
     const [state, setState] = useState(State.LOADING) ;
+    const [ refreshing, setRefreshing ] = useState(false) ;
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        getAccounts().then(result => {
+            setAccounts(result.accounts)
+            setDisplayedAccounts(result.accounts)
+            setRefreshing(false)
+        })
+    }, [])
 
     // Get the accounts from the core and populate the page
     const fetchAccounts = () => {
@@ -29,7 +40,7 @@ export const AccountsScreen = ({ navigation }) => {
     React.useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <Button onPress={createAccount} title="New"/>
+                <Button onPress={createAccount} color={APP_MAIN_COLOR} title="New"/>
             )
         })
     }, [navigation])
@@ -42,6 +53,7 @@ export const AccountsScreen = ({ navigation }) => {
     // Filter the displayed accounts with the search bar
     const filterAccounts = search => {
         var search_lc = search.toLowerCase() ;
+        
         var result = [] ;
         accounts.forEach(ac => {
             var matches = (ac.name.toLowerCase().includes(search_lc)) ;
@@ -50,15 +62,21 @@ export const AccountsScreen = ({ navigation }) => {
         setDisplayedAccounts(result) ;
     }
 
-    // At the beginning fetch the accounts then populate the 
-    // accounts variable
-    useEffect(fetchAccounts, [])
+
+    useEffect(() => {
+        const unsuscribe = navigation.addListener('focus', () => {
+            // This will be executed when the page goes from background to foreground
+            fetchAccounts()
+        }) ;
+        fetchAccounts()
+        return unsuscribe
+    }, [navigation])
 
     // Aspect of one account in the list
     const renderAccount = ({ item }) => (
         <TouchableOpacity onPress={() => onAccountClicked(item)}>
-            <View style={accounts_style.account}>
-                <Text style={accounts_style.account}>{item.name}</Text>
+            <View style={[accounts_style.account]}>
+                <Text style={[accounts_style.account_name]}>{item.name}</Text>
             </View>
         </TouchableOpacity>
     );
@@ -77,19 +95,25 @@ export const AccountsScreen = ({ navigation }) => {
                 renderItem={renderAccount}
                 keyExtractor={(item) => item.id}
                 extraData={onAccountClicked}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
             />)
     }
     
     return (
-        <View style={accounts_style.container}>
+        <SafeAreaView style={[Style.container, accounts_style.container]}>
             <TextInput 
-                style={accounts_style.search_input}
+                style={[Style.input, accounts_style.search_input]}
                 placeholder={"Search account ..."}
                 returnKeyType={"search"}
                 clearButtonMode={"always"}
                 onChangeText={content => filterAccounts(content)}
             />
-            <View>
+            <View style={[{flex: 1}, accounts_style.accounts_container]}>
             {
                 // If failed to load then display error message
                 (state == State.FAILURE) ?
@@ -106,7 +130,7 @@ export const AccountsScreen = ({ navigation }) => {
                 :
                 // If still loading then display activity indicator
                 (state == State.LOADING) ? 
-                <ActivityIndicator/> 
+                <CenteredActivityIndicator/> 
                 : 
                 // If loaded yet display the list of accounts
                 <Accounts 
@@ -115,33 +139,35 @@ export const AccountsScreen = ({ navigation }) => {
                 />
             }
             </View>
-        </View>
+        </SafeAreaView>
     );
 };
 
 // Style of the page
 const accounts_style = StyleSheet.create({
     container: {
-        justifyContent: "center",    
+        height: "100%"
+    },
+    accounts_container: {
+        borderRadius: 15,
+        backgroundColor: "white",
+        // This way accounts will be aligned to the left
+        paddingVertical: 10,
     },
     accounts: {
-        // This way accounts will be aligned to the left
-        // with a 20% margin at the left
-        alignSelf: "center",
-        width: "60%"
+        paddingLeft: 30,
     },
     account: {
-        marginVertical: 5,
+        marginVertical: 10,
+    },
+    account_name: {
         fontSize: 18,
-        fontWeight: "bold"
+        fontWeight: "bold",
+        color: APP_MAIN_COLOR
     },
     search_input: {
-        backgroundColor: "white",
-        borderRadius: 5,
-        padding: 5,
         borderRadius: 5,
         marginVertical: 20,
-        marginHorizontal: 30,
         fontSize: 18,
     },
     no_account_found: {

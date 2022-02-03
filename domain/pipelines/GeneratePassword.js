@@ -1,4 +1,6 @@
+import { sendPostRequest } from "../core_communication/fetchAgent";
 import { extractStoredSession } from "../session/session";
+import { disconnectUser } from "./DisconnectUser";
 
 /**
  * Send a request to the server to generate a password, with the parameters of the API
@@ -11,26 +13,27 @@ import { extractStoredSession } from "../session/session";
  *              {string?} error : The error from the server if the parameters weren't valid
  *          }
  */
-export const generatePassword = async ({navigation, length, upper, lower, numbers, symbols, forced}) => {
+export const generatePassword = async (navigation, length, upper, lower, numbers, symbols, forced) => {
 
-    // Extract the username and password from the session
-    var getSessionResult = extractStoredSession() ; 
-    if (!getSessionResult.success) return Promise.resolve({success: false, clearAccount: null})
+    try {
 
-    await delay(1000) ;
+        // Send a post request to the server with username and password as arguments
+        const response = await sendPostRequest("generate", 
+            {
+                password_length: length,
+                uppercase_letters: upper,
+                lowercase_letters: lower,
+                numbers: numbers,
+                symbols: symbols,
+                fixed_content: forced
+            }
+        )
 
-    // If unable to join server then disconnect the user
-    // TODO
+        return response
+    }
 
-    return Promise.resolve({
-        success: true,
-        password: "j0272RIHJFh"
-    })
-
-}
-
-function delay(milliseconds){
-    return new Promise(resolve => {
-        setTimeout(resolve, milliseconds);
-    })
+    // In case of failure reaching the server
+    catch (exception) {
+        disconnectUser(navigation)
+    }
 }

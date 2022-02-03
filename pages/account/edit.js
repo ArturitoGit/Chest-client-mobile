@@ -6,6 +6,8 @@ import { FieldPage } from "../create/OneFieldPage"
 import { editAccount } from '../../domain/pipelines/EditAccount'
 import { AccountNameValidator } from "./account"
 
+import { EDIT_FIELD } from './account' 
+
 export const EditScreen = ({navigation, route}) => {
 
     // Get the navigation params
@@ -16,7 +18,10 @@ export const EditScreen = ({navigation, route}) => {
     const [link, setLink] = useState(initial_account.link)
     const [username, setUsername] = useState(initial_account.username)
 
-    const submit = () => {
+    const[isLoading, setLoading] = useState(false)
+
+    const submit = async () => {
+        setLoading(true)
         const newAccount = {
             id: initial_account.id,
             name: name,
@@ -24,9 +29,9 @@ export const EditScreen = ({navigation, route}) => {
             username: username,
             clearPassword: initial_account.clearPassword
         }
-        editAccount(newAccount).then(result => {
-            navigation.navigate("Account", {accountId: initial_account.id})
-        })
+        await editAccount(navigation, newAccount)
+        setLoading(false)
+        navigation.navigate("Account", {accountId: initial_account.id})
     }
 
     return (
@@ -41,6 +46,7 @@ export const EditScreen = ({navigation, route}) => {
                             setValue={setName}
                             onValidate={submit}
                             validator={AccountNameValidator}
+                            isLoading={isLoading}
                         />) :
                     field == EDIT_FIELD.LINK ?
                         (<FieldPage  
@@ -50,6 +56,7 @@ export const EditScreen = ({navigation, route}) => {
                             setValue={setLink}
                             onValidate={submit}
                             multiline={true}
+                            isLoading={isLoading}
                         />) :
                     field == EDIT_FIELD.USERNAME ?
                         (<FieldPage  
@@ -58,6 +65,7 @@ export const EditScreen = ({navigation, route}) => {
                             value={username}
                             setValue={setUsername}
                             onValidate={submit}
+                            isLoading={isLoading}
                         />) :
                     []
 
@@ -65,11 +73,4 @@ export const EditScreen = ({navigation, route}) => {
             </SafeAreaView>
         </DismissKeyBoard>
     )
-}
-
-export const EDIT_FIELD = {
-    NAME: 0,
-    LINK: 1,
-    USERNAME: 2,
-    PASSWORD: 3
 }

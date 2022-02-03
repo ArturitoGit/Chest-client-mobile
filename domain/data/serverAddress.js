@@ -1,12 +1,12 @@
+import { Settings } from "react-native"
 
-var address = "https://127.0.0.1:8099"
+const default_address = "https://127.0.0.1:8099"
 
 export const getServerAddress = () => {
-    console.log(`Get server address request ; return : ${address}`)
-    return address
+    const stored = Settings.get("address")
+    return stored ? stored : default_address
 }
 
 export const setServerAddress = (newAddress) => {
-    console.log(`Set server address request ; set to ${newAddress}`)
-    address = newAddress
+    Settings.set({address: newAddress})
 }

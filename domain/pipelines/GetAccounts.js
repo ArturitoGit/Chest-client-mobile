@@ -1,5 +1,6 @@
 import { extractStoredSession } from "../session/session"
 import { getPreviousUsername } from "../data/username"
+import { sendPostRequest } from "../core_communication/fetchAgent";
 
 export const getAccounts = async () => {
 
@@ -7,43 +8,30 @@ export const getAccounts = async () => {
     var getSessionResult = extractStoredSession() ; 
     if (!getSessionResult.success) return Promise.resolve({success: false, accounts: null})
 
-    // Wait 2s
-    await delay(2000)
+    const username = getSessionResult.username
+    const password = getSessionResult.password
 
-    // return []
+    try {
 
-    // return Promise.resolve({
-    //     success: true,
-    //     accounts: []
-    // })
+        // Send a post request to the server with username and password as arguments
+        const response = await sendPostRequest("get", 
+            {
+                username: username, 
+                password: password
+            }
+        )
 
-    return Promise.resolve({
-        success: true,
-        accounts: 
-        [
-            {
-                id: 0,
-                name: "La banque postale"
-            },
-            {
-                id: 1,
-                name: "Expo"
-            },
-            {
-                id: 2,
-                name: "Github"
-            },
-            {
-                id: 3,
-                name: "Le père Noël"
-            },
-        ]
-    })
+        // Return the result
+        return response
+    }
+
+    // In case of failure reaching the server
+    catch (exception) {
+        console.log(exception)
+        return {
+            success: false,
+            error: "Failed to reach the server"
+        }
+    }
         
-}
-
-function delay(milliseconds){
-    return new Promise(resolve => {
-        setTimeout(resolve, milliseconds);
-    })
 }
